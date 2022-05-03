@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 import { postAdded } from "./postsSlice";
+
+import { selectAllUsers } from "../users/usersSlice";
 
 const AddPostForm: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+
+  const users = useAppSelector(selectAllUsers);
 
   const dispatch = useAppDispatch();
 
@@ -15,17 +20,25 @@ const AddPostForm: React.FC = () => {
   const onContentChanged = (event: React.FormEvent<HTMLTextAreaElement>) =>
     setContent(event.currentTarget.value);
 
+  const onAuthorChanged = (event: React.FormEvent<HTMLSelectElement>) =>
+    setUserId(event.currentTarget.value);
+
   const onSavePostClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (title && content) {
-      dispatch(postAdded(title, content));
+      dispatch(postAdded(title, content, userId));
 
       setTitle("");
       setContent("");
     }
   };
+  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
 
-  const canSave = Boolean(title) && Boolean(content);
+  const usersOptions = users.map((user) => (
+    <option key={user.id} value={user.id}>
+      {user.name}
+    </option>
+  ));
 
   return (
     <section>
@@ -39,11 +52,11 @@ const AddPostForm: React.FC = () => {
           value={title}
           onChange={onTitleChanged}
         />
-        {/* <label htmlFor="postAuthor">Author:</label>
+        <label htmlFor="postAuthor">Author:</label>
         <select id="postAuthor" value={userId} onChange={onAuthorChanged}>
           <option value=""></option>
           {usersOptions}
-        </select> */}
+        </select>
         <label htmlFor="postContent">Content:</label>
         <textarea
           id="postContent"
