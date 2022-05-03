@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
-interface Post {
+export interface Post {
   id: string;
   title: string;
   content: string;
@@ -20,12 +20,18 @@ const initialState: Post[] = [
   },
 ];
 
-const postSlice = createSlice({
+const postsSlice = createSlice({
   name: "posts",
   initialState,
-  reducers: {},
+  reducers: {
+    postAdded(state, action: PayloadAction<Post>) {
+      state.push(action.payload);
+    },
+  },
 });
 
 export const selectAllPosts = (state: RootState) => state.posts;
 
-export default postSlice.reducer;
+export const { postAdded } = postsSlice.actions;
+
+export default postsSlice.reducer;
