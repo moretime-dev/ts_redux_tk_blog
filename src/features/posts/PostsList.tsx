@@ -3,6 +3,7 @@ import { selectAllPosts } from "./postsSlice";
 
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
+import ReactionButtons from "./ReactionButtons";
 
 const PostsList: React.FC = () => {
   const posts = useAppSelector(selectAllPosts);
@@ -18,6 +19,7 @@ const PostsList: React.FC = () => {
       <p className="postCredit">
         <PostAuthor userId={post.userId ? post.userId : ""} />
         <TimeAgo timestamp={post.date} />
+        <ReactionButtons post={post} />
       </p>
     </article>
   ));

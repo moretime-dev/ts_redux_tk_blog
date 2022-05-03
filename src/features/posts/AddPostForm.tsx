@@ -30,6 +30,7 @@ const AddPostForm: React.FC = () => {
 
       setTitle("");
       setContent("");
+      setUserId("");
     }
   };
   const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
@@ -54,7 +55,7 @@ const AddPostForm: React.FC = () => {
         />
         <label htmlFor="postAuthor">Author:</label>
         <select id="postAuthor" value={userId} onChange={onAuthorChanged}>
-          <option value=""></option>
+          <option value="">--select author--</option>
           {usersOptions}
         </select>
         <label htmlFor="postContent">Content:</label>

@@ -3,6 +3,11 @@ import { RootState } from "../../app/store";
 
 import { sub } from "date-fns";
 
+interface Reaction {
+  postId: string;
+  reaction: string;
+}
+
 export interface Post {
   id: string;
   title: string;
@@ -74,11 +79,19 @@ const postsSlice = createSlice({
         };
       },
     },
+
+    reactionAdded(state, action: PayloadAction<Reaction>) {
+      const { postId, reaction } = action.payload;
+      const existingPost: Post | any = state.find((post) => post.id === postId);
+      if (existingPost) {
+        existingPost.reactions[reaction]++;
+      }
+    },
   },
 });
 
 export const selectAllPosts = (state: RootState) => state.posts;
 
-export const { postAdded } = postsSlice.actions;
+export const { postAdded, reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;
