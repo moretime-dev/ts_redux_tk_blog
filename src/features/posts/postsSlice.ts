@@ -9,7 +9,7 @@ import { RootState } from "../../app/store";
 
 import axios from "axios";
 
-// import { sub } from "date-fns";
+import { sub } from "date-fns";
 
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
@@ -87,6 +87,42 @@ const postsSlice = createSlice({
         existingPost.reactions[reaction]++;
       }
     },
+  },
+
+  extraReducers(builder) {
+    builder
+      .addCase(fetchPosts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        fetchPosts.fulfilled,
+        (state, action: PayloadAction<SinglePost[]>) => {
+          state.status = "succeeded";
+          //Adding Date and Reactions
+          let minute = 1;
+          const loadedPosts = action.payload.map((post) => {
+            post.date = sub(new Date(), {
+              minutes: minute++,
+            }).toISOString();
+            post.reactions = {
+              thumbsUp: 0,
+              wow: 0,
+              heart: 0,
+              rocket: 0,
+              coffee: 0,
+            };
+
+            return post;
+          });
+          // Add any fetched posts to the array
+          // state.posts = state.posts.concat(loadedPosts);
+          state.posts = [...state.posts, ...loadedPosts];
+        }
+      )
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message!;
+      });
   },
 });
 
