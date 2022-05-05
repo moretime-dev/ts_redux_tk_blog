@@ -9,7 +9,7 @@ import { RootState } from "../../app/store";
 
 import axios from "axios";
 
-import { sub } from "date-fns";
+// import { sub } from "date-fns";
 
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
@@ -18,13 +18,13 @@ export interface Reaction {
   reaction: string;
 }
 
-type SinglePost = {
+export type SinglePost = {
   id: string;
   title: string;
   content: string;
   userId?: string;
   date: string;
-  reactions: {
+  reaction: {
     thumbsUp: number;
     wow: number;
     heart: number;
@@ -44,7 +44,7 @@ const initialState: Post = { posts: [], status: "idle", error: null };
 export const fetchPosts = createAsyncThunk("posts/fetchposts", async () => {
   try {
     const response = await axios.get(POSTS_URL);
-    return [...response.data];
+    return response.data;
   } catch (err: any) {
     return err.message;
   }
@@ -66,7 +66,7 @@ const postsSlice = createSlice({
             content,
             date: new Date().toISOString(),
             userId,
-            reactions: {
+            reaction: {
               thumbsUp: 0,
               wow: 0,
               heart: 0,
@@ -84,7 +84,7 @@ const postsSlice = createSlice({
         (post) => post.id === postId
       );
       if (existingPost) {
-        existingPost.reactions[reaction]++;
+        existingPost.reaction[reaction]++;
       }
     },
   },

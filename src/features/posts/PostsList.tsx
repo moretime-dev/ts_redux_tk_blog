@@ -16,11 +16,11 @@ const PostsList: React.FC = () => {
     <article key={post.id}>
       <h3>{post.title}</h3>
       <p>{post.content.substring(0, 100)}</p>
-      <p className="postCredit">
+      <div className="postCredit">
         <PostAuthor userId={post.userId ? post.userId : ""} />
         <TimeAgo timestamp={post.date} />
         <ReactionButtons post={post} />
-      </p>
+      </div>
     </article>
   ));
 
