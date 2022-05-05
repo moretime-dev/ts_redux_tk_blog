@@ -18,20 +18,20 @@ export interface Reaction {
   reaction: string;
 }
 
-export type SinglePost = {
+export interface SinglePost {
   id: string;
   title: string;
   content: string;
   userId?: string;
   date: string;
-  reaction: {
+  reactions: {
     thumbsUp: number;
     wow: number;
     heart: number;
     rocket: number;
     coffee: number;
   };
-};
+}
 
 export interface Post {
   posts: SinglePost[];
@@ -66,7 +66,7 @@ const postsSlice = createSlice({
             content,
             date: new Date().toISOString(),
             userId,
-            reaction: {
+            reactions: {
               thumbsUp: 0,
               wow: 0,
               heart: 0,
@@ -84,7 +84,7 @@ const postsSlice = createSlice({
         (post) => post.id === postId
       );
       if (existingPost) {
-        existingPost.reaction[reaction]++;
+        existingPost.reactions[reaction]++;
       }
     },
   },

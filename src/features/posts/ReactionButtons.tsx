@@ -23,7 +23,7 @@ const ReactionButtons: React.FC<{ post: SinglePost | any }> = ({ post }) => {
           dispatch(reactionAdded({ postId: post.id, reaction: name }))
         }
       >
-        {emoji} {post.reaction[name]}
+        {emoji} {post.reactions[name]}
       </button>
     );
   });
