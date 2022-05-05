@@ -1,14 +1,24 @@
-import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  PayloadAction,
+  nanoid,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
+
 import { RootState } from "../../app/store";
+
+import axios from "axios";
 
 import { sub } from "date-fns";
 
-interface Reaction {
+const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+
+export interface Reaction {
   postId: string;
   reaction: string;
 }
 
-export interface Post {
+type SinglePost = {
   id: string;
   title: string;
   content: string;
@@ -21,46 +31,34 @@ export interface Post {
     rocket: number;
     coffee: number;
   };
+};
+
+export interface Post {
+  posts: SinglePost[];
+  status: string;
+  error: null | string;
 }
 
-const initialState: Post[] = [
-  {
-    id: "1",
-    title: "Learning Redux Toolkit",
-    content: "I've heard good things",
-    date: sub(new Date(), { minutes: 10 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      wow: 0,
-      heart: 0,
-      rocket: 0,
-      coffee: 0,
-    },
-  },
-  {
-    id: "2",
-    title: "Slices...",
-    content: "The more I say slice, the more I want pizza...",
-    date: sub(new Date(), { minutes: 5 }).toISOString(),
-    reactions: {
-      thumbsUp: 0,
-      wow: 0,
-      heart: 0,
-      rocket: 0,
-      coffee: 0,
-    },
-  },
-];
+const initialState: Post = { posts: [], status: "idle", error: null };
+
+export const fetchPosts = createAsyncThunk("posts/fetchposts", async () => {
+  try {
+    const response = await axios.get(POSTS_URL);
+    return [...response.data];
+  } catch (err: any) {
+    return err.message;
+  }
+});
 
 const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
     postAdded: {
-      reducer(state, action: PayloadAction<Post>) {
-        state.push(action.payload);
+      reducer(state, action: PayloadAction<SinglePost>) {
+        state.posts.push(action.payload);
       },
-      prepare(title, content, userId) {
+      prepare(title: string, content: string, userId: string) {
         return {
           payload: {
             id: nanoid(),
@@ -82,7 +80,9 @@ const postsSlice = createSlice({
 
     reactionAdded(state, action: PayloadAction<Reaction>) {
       const { postId, reaction } = action.payload;
-      const existingPost: Post | any = state.find((post) => post.id === postId);
+      const existingPost: Post | any = state.posts.find(
+        (post) => post.id === postId
+      );
       if (existingPost) {
         existingPost.reactions[reaction]++;
       }
@@ -90,7 +90,7 @@ const postsSlice = createSlice({
   },
 });
 
-export const selectAllPosts = (state: RootState) => state.posts;
+export const selectAllPosts = (state: RootState) => state.posts.posts;
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 

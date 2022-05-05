@@ -1,6 +1,6 @@
 import { useAppDispatch } from "../../app/hooks";
 
-import { reactionAdded, Post } from "./postsSlice";
+import { reactionAdded, Reaction } from "./postsSlice";
 
 const reactionEmoji = {
   thumbsUp: "👍",
@@ -10,7 +10,7 @@ const reactionEmoji = {
   coffee: "☕",
 };
 
-const ReactionButtons: React.FC<{ post: Post | any }> = ({ post }) => {
+const ReactionButtons: React.FC<{ post: Reaction | any }> = ({ post }) => {
   const dispatch = useAppDispatch();
 
   const reactionButtons = Object.entries(reactionEmoji).map(([name, emoji]) => {
@@ -20,10 +20,10 @@ const ReactionButtons: React.FC<{ post: Post | any }> = ({ post }) => {
         type="button"
         className="reactionButton"
         onClick={() =>
-          dispatch(reactionAdded({ postId: post.id, reaction: name }))
+          dispatch(reactionAdded({ postId: post.postId, reaction: name }))
         }
       >
-        {emoji} {post.reactions[name]}
+        {emoji} {post.reaction[name]}
       </button>
     );
   });
