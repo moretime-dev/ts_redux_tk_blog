@@ -8,7 +8,7 @@ import { selectAllUsers } from "../users/usersSlice";
 const AddPostForm: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
+  const [userId, setUserId] = useState<number>(0);
 
   const users = useAppSelector(selectAllUsers);
 
@@ -21,7 +21,7 @@ const AddPostForm: React.FC = () => {
     setContent(event.currentTarget.value);
 
   const onAuthorChanged = (event: React.FormEvent<HTMLSelectElement>) =>
-    setUserId(event.currentTarget.value);
+    setUserId(+event.currentTarget.value);
 
   const onSavePostClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -30,7 +30,7 @@ const AddPostForm: React.FC = () => {
 
       setTitle("");
       setContent("");
-      setUserId("");
+      setUserId(0);
     }
   };
   const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
