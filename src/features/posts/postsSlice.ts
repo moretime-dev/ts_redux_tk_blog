@@ -1,8 +1,8 @@
 import {
   createSlice,
   PayloadAction,
-  nanoid,
   createAsyncThunk,
+  nanoid,
 } from "@reduxjs/toolkit";
 
 import { RootState } from "../../app/store";
@@ -22,7 +22,7 @@ export interface SinglePost {
   id: string;
   title: string;
   body: string;
-  userId?: number;
+  userId: number;
   date: string;
   reactions: {
     thumbsUp: number;
@@ -33,13 +33,19 @@ export interface SinglePost {
   };
 }
 
-export interface Post {
+export interface Posts {
   posts: SinglePost[];
   status: string;
   error: null | string;
 }
 
-const initialState: Post = { posts: [], status: "idle", error: null };
+interface PostToAdd {
+  title: string;
+  body: string;
+  userId: number;
+}
+
+const initialState: Posts = { posts: [], status: "idle", error: null };
 
 export const fetchPosts = createAsyncThunk("posts/fetchposts", async () => {
   try {
@@ -52,7 +58,7 @@ export const fetchPosts = createAsyncThunk("posts/fetchposts", async () => {
 
 export const addNewPost = createAsyncThunk(
   "posts/addNewPost",
-  async (initialPost) => {
+  async (initialPost: PostToAdd) => {
     try {
       const response = await axios.post(POSTS_URL, initialPost);
       return response.data;
@@ -66,33 +72,33 @@ const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    postAdded: {
-      reducer(state, action: PayloadAction<SinglePost>) {
-        state.posts.push(action.payload);
-      },
-      prepare(title: string, body: string, userId: number) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-            body,
-            date: new Date().toISOString(),
-            userId,
-            reactions: {
-              thumbsUp: 0,
-              wow: 0,
-              heart: 0,
-              rocket: 0,
-              coffee: 0,
-            },
-          },
-        };
-      },
-    },
+    // postAdded: {
+    //   reducer(state, action: PayloadAction<SinglePost>) {
+    //     state.posts.push(action.payload);
+    //   },
+    //   prepare(title: string, body: string, userId: number) {
+    //     return {
+    //       payload: {
+    //         id: nanoid(),
+    //         title,
+    //         body,
+    //         date: new Date().toISOString(),
+    //         userId,
+    //         reactions: {
+    //           thumbsUp: 0,
+    //           wow: 0,
+    //           heart: 0,
+    //           rocket: 0,
+    //           coffee: 0,
+    //         },
+    //       },
+    //     };
+    //   },
+    // },
 
     reactionAdded(state, action: PayloadAction<Reaction>) {
       const { postId, reaction } = action.payload;
-      const existingPost: Post | any = state.posts.find(
+      const existingPost: Posts | any = state.posts.find(
         (post) => post.id === postId
       );
       if (existingPost) {
@@ -138,15 +144,18 @@ const postsSlice = createSlice({
       .addCase(
         addNewPost.fulfilled,
         (state, action: PayloadAction<SinglePost>) => {
+          action.payload.id = nanoid();
           action.payload.userId = Number(action.payload.userId);
           action.payload.date = new Date().toISOString();
-          action.payload.reactions = {
+          action.payload.reactions = action.payload.reactions = {
             thumbsUp: 0,
             wow: 0,
             heart: 0,
             rocket: 0,
             coffee: 0,
           };
+          console.log(action.payload);
+
           state.posts.push(action.payload);
         }
       );
@@ -157,6 +166,6 @@ export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
 
-export const { postAdded, reactionAdded } = postsSlice.actions;
+export const { reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;

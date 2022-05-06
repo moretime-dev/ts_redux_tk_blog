@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
-import { postAdded } from "./postsSlice";
+import { addNewPost } from "./postsSlice";
 
 import { selectAllUsers } from "../users/usersSlice";
 
@@ -9,6 +9,7 @@ const AddPostForm: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [userId, setUserId] = useState<number>(0);
+  const [addRequestStatus, setAddRequestStatus] = useState<string>("idle");
 
   const users = useAppSelector(selectAllUsers);
 
@@ -23,17 +24,26 @@ const AddPostForm: React.FC = () => {
   const onAuthorChanged = (event: React.FormEvent<HTMLSelectElement>) =>
     setUserId(+event.currentTarget.value);
 
+  const canSave =
+    [title, content, userId].every(Boolean) && addRequestStatus === "idle";
+
   const onSavePostClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (title && content) {
-      dispatch(postAdded(title, content, userId));
+    if (canSave) {
+      try {
+        setAddRequestStatus("pending");
+        dispatch(addNewPost({ title, body: content, userId })).unwrap();
 
-      setTitle("");
-      setContent("");
-      setUserId(0);
+        setTitle("");
+        setContent("");
+        setUserId(0);
+      } catch (err) {
+        console.error("Failed to save post", err);
+      } finally {
+        setAddRequestStatus("idle");
+      }
     }
   };
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
 
   const usersOptions = users.map((user) => (
     <option key={user.id} value={user.id}>
@@ -55,7 +65,7 @@ const AddPostForm: React.FC = () => {
         />
         <label htmlFor="postAuthor">Author:</label>
         <select id="postAuthor" value={userId} onChange={onAuthorChanged}>
-          <option value="">--select author--</option>
+          <option value="0">--select author--</option>
           {usersOptions}
         </select>
         <label htmlFor="postContent">Content:</label>

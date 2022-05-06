@@ -7,7 +7,7 @@ const PostExcerpt: React.FC<{ post: SinglePost }> = ({ post }) => {
   return (
     <article>
       <h3>{post.title}</h3>
-      <p>{post.body.substring(0, 100)}</p>
+      {<p>{post.body.substring(0, 100)}</p>}
       <div className="postCredit">
         <PostAuthor userId={post.userId ? post.userId : 0} />
         <TimeAgo timestamp={post.date} />
