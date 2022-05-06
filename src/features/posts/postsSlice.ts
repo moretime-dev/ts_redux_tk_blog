@@ -21,7 +21,7 @@ export interface Reaction {
 export interface SinglePost {
   id: string;
   title: string;
-  content: string;
+  body: string;
   userId?: string;
   date: string;
   reactions: {
@@ -58,12 +58,12 @@ const postsSlice = createSlice({
       reducer(state, action: PayloadAction<SinglePost>) {
         state.posts.push(action.payload);
       },
-      prepare(title: string, content: string, userId: string) {
+      prepare(title: string, body: string, userId: string) {
         return {
           payload: {
             id: nanoid(),
             title,
-            content,
+            body,
             date: new Date().toISOString(),
             userId,
             reactions: {
@@ -114,9 +114,9 @@ const postsSlice = createSlice({
 
             return post;
           });
-          // Add any fetched posts to the array
-          // state.posts = state.posts.concat(loadedPosts);
-          state.posts = [...state.posts, ...loadedPosts];
+          // Add any fetched posts to the array <--- Wrong
+          state.posts = loadedPosts;
+          // state.posts = [...state.posts, ...loadedPosts];
         }
       )
       .addCase(fetchPosts.rejected, (state, action) => {
