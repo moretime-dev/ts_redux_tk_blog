@@ -38,12 +38,7 @@ const PostsList: React.FC = () => {
     content = <p>{postError}</p>;
   }
 
-  return (
-    <section>
-      <h2>Posts</h2>
-      {content}
-    </section>
-  );
+  return <section>{content}</section>;
 };
 
 export default PostsList;
