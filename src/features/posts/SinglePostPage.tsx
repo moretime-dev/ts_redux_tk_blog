@@ -12,7 +12,7 @@ const SinglePostPage = () => {
 
   const postId = params.postId;
 
-  const post = useAppSelector((state) => selectPostById(state, postId!));
+  const post = useAppSelector((state) => selectPostById(state, Number(postId)));
 
   if (!post) {
     return (

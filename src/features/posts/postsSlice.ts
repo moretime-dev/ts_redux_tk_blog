@@ -14,12 +14,12 @@ import { sub } from "date-fns";
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
 export interface Reaction {
-  postId: string;
+  postId: number;
   reaction: string;
 }
 
 export interface SinglePost {
-  id: string;
+  id: number;
   title: string;
   body: string;
   userId: number;
@@ -144,7 +144,7 @@ const postsSlice = createSlice({
       .addCase(
         addNewPost.fulfilled,
         (state, action: PayloadAction<SinglePost>) => {
-          action.payload.id = nanoid();
+          action.payload.id = +nanoid();
           action.payload.userId = Number(action.payload.userId);
           action.payload.date = new Date().toISOString();
           action.payload.reactions = action.payload.reactions = {
@@ -154,7 +154,6 @@ const postsSlice = createSlice({
             rocket: 0,
             coffee: 0,
           };
-          console.log(action.payload);
 
           state.posts.push(action.payload);
         }
@@ -166,7 +165,7 @@ export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
 
-export const selectPostById = (state: RootState, postId: string) =>
+export const selectPostById = (state: RootState, postId: number) =>
   state.posts.posts.find((post) => post.id === postId);
 
 export const { reactionAdded } = postsSlice.actions;
