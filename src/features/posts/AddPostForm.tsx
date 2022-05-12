@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 import { addNewPost } from "./postsSlice";
@@ -14,6 +15,7 @@ const AddPostForm: React.FC = () => {
   const users = useAppSelector(selectAllUsers);
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const onTitleChanged = (event: React.FormEvent<HTMLInputElement>) =>
     setTitle(event.currentTarget.value);
@@ -37,6 +39,7 @@ const AddPostForm: React.FC = () => {
         setTitle("");
         setContent("");
         setUserId(0);
+        navigate("/");
       } catch (err) {
         console.error("Failed to save post", err);
       } finally {
