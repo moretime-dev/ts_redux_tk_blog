@@ -10,7 +10,6 @@ import { RootState } from "../../app/store";
 import axios from "axios";
 
 import { sub } from "date-fns";
-import { act } from "react-dom/test-utils";
 
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
@@ -84,6 +83,20 @@ export const updatePost = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  "/posts/deletePost",
+  async (initialPost: { id: number }) => {
+    const { id } = initialPost;
+    try {
+      const response = await axios.delete(`${POSTS_URL}/${id}`);
+      if (response.status === 200) return initialPost;
+      return `${response.status}: ${response.statusText}`;
+    } catch (err: any) {
+      return err.message;
+    }
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -97,8 +110,6 @@ const postsSlice = createSlice({
         existingPost.reactions[reaction]++;
       }
     },
-
-    deletePost(state, action: PayloadAction<{ id?: number }>) {},
   },
 
   extraReducers(builder) {
@@ -165,7 +176,17 @@ const postsSlice = createSlice({
           const posts = state.posts.filter((post) => post.id !== id);
           state.posts = [...posts, action.payload as SinglePost];
         }
-      );
+      )
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload.id) {
+          console.log("Delete could not be completed");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        const posts = state.posts.filter((post) => post.id !== id);
+        state.posts = posts;
+      });
   },
 });
 
@@ -176,6 +197,6 @@ export const getPostsError = (state: RootState) => state.posts.error;
 export const selectPostById = (state: RootState, postId: number) =>
   state.posts.posts.find((post) => post.id === postId);
 
-export const { reactionAdded, deletePost } = postsSlice.actions;
+export const { reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;
