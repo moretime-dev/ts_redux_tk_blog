@@ -10,6 +10,7 @@ import { RootState } from "../../app/store";
 import axios from "axios";
 
 import { sub } from "date-fns";
+import { act } from "react-dom/test-utils";
 
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
@@ -32,6 +33,8 @@ export interface SinglePost {
     coffee: number;
   };
 }
+
+type PostToUpdate = Partial<SinglePost>;
 
 export interface Posts {
   posts: SinglePost[];
@@ -68,34 +71,23 @@ export const addNewPost = createAsyncThunk(
   }
 );
 
+export const updatePost = createAsyncThunk(
+  "/posts/updatePost",
+  async (initialPost: PostToUpdate) => {
+    const { id } = initialPost;
+    try {
+      const response = await axios.put(`${POSTS_URL}/${id}`, initialPost);
+      return response.data;
+    } catch (err: any) {
+      return err.message;
+    }
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    // postAdded: {
-    //   reducer(state, action: PayloadAction<SinglePost>) {
-    //     state.posts.push(action.payload);
-    //   },
-    //   prepare(title: string, body: string, userId: number) {
-    //     return {
-    //       payload: {
-    //         id: nanoid(),
-    //         title,
-    //         body,
-    //         date: new Date().toISOString(),
-    //         userId,
-    //         reactions: {
-    //           thumbsUp: 0,
-    //           wow: 0,
-    //           heart: 0,
-    //           rocket: 0,
-    //           coffee: 0,
-    //         },
-    //       },
-    //     };
-    //   },
-    // },
-
     reactionAdded(state, action: PayloadAction<Reaction>) {
       const { postId, reaction } = action.payload;
       const existingPost: Posts | any = state.posts.find(
@@ -105,6 +97,8 @@ const postsSlice = createSlice({
         existingPost.reactions[reaction]++;
       }
     },
+
+    deletePost(state, action: PayloadAction<{ id?: number }>) {},
   },
 
   extraReducers(builder) {
@@ -157,6 +151,20 @@ const postsSlice = createSlice({
 
           state.posts.push(action.payload);
         }
+      )
+      .addCase(
+        updatePost.fulfilled,
+        (state, action: PayloadAction<PostToUpdate>) => {
+          if (!action.payload?.id) {
+            console.log("Update could not be completed");
+            console.log(action.payload);
+            return;
+          }
+          const { id } = action.payload;
+          action.payload.date = new Date().toISOString();
+          const posts = state.posts.filter((post) => post.id !== id);
+          state.posts = [...posts, action.payload as SinglePost];
+        }
       );
   },
 });
@@ -168,6 +176,6 @@ export const getPostsError = (state: RootState) => state.posts.error;
 export const selectPostById = (state: RootState, postId: number) =>
   state.posts.posts.find((post) => post.id === postId);
 
-export const { reactionAdded } = postsSlice.actions;
+export const { reactionAdded, deletePost } = postsSlice.actions;
 
 export default postsSlice.reducer;
